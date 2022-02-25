@@ -18,7 +18,7 @@ it('logs values', () => {
   })
 })
 
-it.only('prints a number', () => {
+it('prints a number', () => {
   cy.wait(1000)
   cy.visit('/')
   cy.wait(1000)
@@ -34,4 +34,25 @@ it.only('prints a number', () => {
   // Cypress._.times(100, () => {
   //   cy.wrap(1).should('be.equal', 1)
   // })
+})
+
+it('passes after retries', () => {
+  const person = {
+    work: 'company',
+    age: 20,
+    position: 'developer',
+  }
+  setTimeout(() => {
+    person.name = 'Joe'
+  }, 2000)
+  cy.wrap(person).should('have.property', 'name', 'Joe')
+  cy.wrap(20).should('be.equal', 20)
+})
+
+it('shows the should assertion', () => {
+  cy.wrap(10).should('be.equal', 10)
+})
+
+it.skip('fails after retries', () => {
+  cy.wrap(20).wait(1000).should('be.equal', 21)
 })

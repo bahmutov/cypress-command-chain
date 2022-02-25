@@ -13,13 +13,20 @@ const stringify = (args) => {
       if (typeof x === 'string') {
         return `"${x}"`
       }
-      return x
+      if (Cypress._.isPlainObject(x)) {
+        const s = JSON.stringify(x)
+        if (s.length > 200) {
+          return s.slice(0, 200) + '...'
+        }
+        return s
+      }
+      return Cypress.utils.stringify(x)
     })
     .join(', ')
 }
 
 Cypress.on('command:enqueued', (command) => {
-  console.log('command enqueued', command)
+  // console.log('command enqueued', command)
   if (el) {
     const commandEl = document.createElement('p')
     commandEl.style.opacity = 0.25
@@ -27,7 +34,7 @@ Cypress.on('command:enqueued', (command) => {
     commandEl.dataset.chainerId = command.chainerId
     commandEl.dataset.commandName = command.name
     commandEl.dataset.finished = false
-    commandEl.dataset.type === command.type
+    commandEl.dataset.commandType = command.type
     if (command.type === 'assertion') {
       commandEl.style.color = '#07b282'
     }
@@ -91,7 +98,7 @@ function finishRunningCommandsBefore(commandEl) {
   // this is useful because the assertions do not get "start" or "end" events
   let el = commandEl
   while (el.previousSibling) {
-    console.log('previous sibling')
+    // console.log('previous sibling')
     el = el.previousSibling
     if (el && el.dataset.finished === 'false') {
       finishCommand(el)
@@ -103,12 +110,29 @@ function finishRunningCommand() {
   finishRunningCommandsBefore(runningCommandEl)
   if (runningCommandEl) {
     finishCommand(runningCommandEl)
+
+    // when finishing a command, finish all directly attached assertions
+    let el = runningCommandEl
+    // console.log(el.nextElementSibling.dataset)
+    while (
+      el.nextElementSibling &&
+      el.nextElementSibling.dataset.commandType === 'assertion'
+    ) {
+      finishCommand(el.nextElementSibling)
+      el = el.nextSibling
+    }
+
     runningCommandEl = null
   }
 }
 
 Cypress.on('command:end', (command) => {
   // console.log('command:end', command.attributes.name)
+  finishRunningCommand()
+})
+
+Cypress.on('test:after:run', () => {
+  console.log('test:after:run')
   finishRunningCommand()
 })
 
