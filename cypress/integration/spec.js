@@ -2,8 +2,9 @@
 
 import '../..'
 
-it.only('confirms a value', () => {
+it('confirms a value', () => {
   cy.wrap('hello').should('equal', 'hello')
+  cy.log('done')
 })
 
 it('logs values', () => {
@@ -17,7 +18,7 @@ it('logs values', () => {
   })
 })
 
-it('prints a number', () => {
+it.only('prints a number', () => {
   cy.wait(1000)
   cy.visit('/')
   cy.wait(1000)

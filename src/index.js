@@ -19,7 +19,7 @@ const stringify = (args) => {
 }
 
 Cypress.on('command:enqueued', (command) => {
-  // console.log('command enqueued', command)
+  console.log('command enqueued', command)
   if (el) {
     const commandEl = document.createElement('p')
     commandEl.style.opacity = 0.25
@@ -27,6 +27,10 @@ Cypress.on('command:enqueued', (command) => {
     commandEl.dataset.chainerId = command.chainerId
     commandEl.dataset.commandName = command.name
     commandEl.dataset.finished = false
+    commandEl.dataset.type === command.type
+    if (command.type === 'assertion') {
+      commandEl.style.color = '#07b282'
+    }
     // console.log('chainer', command.chainerId)
     const text = document.createTextNode(
       command.name + ' ' + stringify(command.args),
@@ -60,12 +64,12 @@ function findCommandElement(command) {
 
 Cypress.on('command:start', (command) => {
   // console.log('command:start', command.attributes.name)
-
   const commandEl = findCommandElement(command)
   if (commandEl) {
     commandEl.style.opacity = 1
     commandEl.style.fontWeight = 'bold'
     commandEl.dataset.finished = true
+    finishRunningCommandsBefore(commandEl)
     runningCommandEl = commandEl
     commandEl.scrollIntoView(false)
   } else {
@@ -73,14 +77,39 @@ Cypress.on('command:start', (command) => {
   }
 })
 
-Cypress.on('command:end', (command) => {
-  // console.log('command:end', command.attributes.name)
+function finishCommand(commandEl) {
+  commandEl.style.opacity = 0.75
+  commandEl.style.fontWeight = 'normal'
+}
 
+function finishRunningCommandsBefore(commandEl) {
+  if (!commandEl) {
+    return
+  }
+
+  // make all commands _before_ it as done
+  // this is useful because the assertions do not get "start" or "end" events
+  let el = commandEl
+  while (el.previousSibling) {
+    console.log('previous sibling')
+    el = el.previousSibling
+    if (el && el.dataset.finished === 'false') {
+      finishCommand(el)
+    }
+  }
+}
+
+function finishRunningCommand() {
+  finishRunningCommandsBefore(runningCommandEl)
   if (runningCommandEl) {
-    runningCommandEl.style.opacity = 0.75
-    runningCommandEl.style.fontWeight = 'normal'
+    finishCommand(runningCommandEl)
     runningCommandEl = null
   }
+}
+
+Cypress.on('command:end', (command) => {
+  // console.log('command:end', command.attributes.name)
+  finishRunningCommand()
 })
 
 let el
