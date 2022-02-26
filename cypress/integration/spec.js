@@ -31,9 +31,17 @@ it('prints a number', () => {
       n = text.split(' ')[0]
     })
   cy.log(n).wait(1000)
-  // Cypress._.times(100, () => {
-  //   cy.wrap(1).should('be.equal', 1)
-  // })
+})
+
+it('correctly prints the number in then cb', () => {
+  cy.visit('/')
+  cy.get('#projects-count').invoke('text').should('match', /^\d+/).then(cy.log)
+})
+
+it.skip('has a long queue of commands', () => {
+  Cypress._.times(100, () => {
+    cy.wrap(1).should('be.equal', 1)
+  })
 })
 
 it('passes after retries', () => {
@@ -55,4 +63,14 @@ it('shows the should assertion', () => {
 
 it.skip('fails after retries', () => {
   cy.wrap(20).wait(1000).should('be.equal', 21)
+})
+
+it('inserts new commands at the right place', () => {
+  cy.wait(2000)
+  cy.wait(2000)
+    .then(() => {
+      cy.log('inserted new commands').wait(3000)
+      cy.log('.then callback finished')
+    })
+    .wait(2000)
 })

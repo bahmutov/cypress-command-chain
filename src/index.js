@@ -27,22 +27,31 @@ const stringify = (args) => {
 
 Cypress.on('command:enqueued', (command) => {
   // console.log('command enqueued', command)
-  if (el) {
-    const commandEl = document.createElement('p')
-    commandEl.style.opacity = 0.25
-    commandEl.style.marginBottom = '4px'
-    commandEl.dataset.chainerId = command.chainerId
-    commandEl.dataset.commandName = command.name
-    commandEl.dataset.finished = false
-    commandEl.dataset.commandType = command.type
-    if (command.type === 'assertion') {
-      commandEl.style.color = '#07b282'
-    }
-    // console.log('chainer', command.chainerId)
-    const text = document.createTextNode(
-      command.name + ' ' + stringify(command.args),
-    )
-    commandEl.appendChild(text)
+  if (!el) {
+    return
+  }
+  const commandEl = document.createElement('p')
+  commandEl.style.opacity = 0.25
+  commandEl.style.marginBottom = '4px'
+  commandEl.dataset.chainerId = command.chainerId
+  commandEl.dataset.commandName = command.name
+  commandEl.dataset.finished = false
+  commandEl.dataset.commandType = command.type
+  if (command.type === 'assertion') {
+    commandEl.style.color = '#07b282'
+  }
+  // console.log('chainer', command.chainerId)
+  const text = document.createTextNode(
+    command.name + ' ' + stringify(command.args),
+  )
+  commandEl.appendChild(text)
+
+  // insert the command at the right place
+  if (runningCommandEl && nextScheduledCommandEl) {
+    nextScheduledCommandEl.insertAdjacentElement('beforebegin', commandEl)
+  } else {
+    // there are no running commands, just
+    // add the new command to the back of the queue
     el.appendChild(commandEl)
   }
 })
@@ -78,6 +87,7 @@ Cypress.on('command:start', (command) => {
     commandEl.dataset.finished = true
     finishRunningCommandsBefore(commandEl)
     runningCommandEl = commandEl
+    nextScheduledCommandEl = commandEl.nextElementSibling
     commandEl.scrollIntoView(false)
   } else {
     console.log('could not find command', command.attributes.name)
@@ -123,6 +133,7 @@ function finishRunningCommand() {
     }
 
     runningCommandEl = null
+    nextScheduledCommandEl = null
   }
 }
 
@@ -138,6 +149,9 @@ Cypress.on('test:after:run', () => {
 
 let el
 let runningCommandEl
+// when a command starts, this is the next command to run
+// used to queue more commands if the running command requires
+let nextScheduledCommandEl
 
 before(() => {
   if (el) {
@@ -157,8 +171,8 @@ before(() => {
   el.style.marginBottom = 0
   el.style.maxHeight = '250px'
   el.style.overflowY = 'scroll'
-  const text = document.createTextNode('Hello there')
-  el.appendChild(text)
+  // const text = document.createTextNode('Hello there')
+  // el.appendChild(text)
 
   if (reporter.children.length > 0) {
     reporter.insertBefore(el, reporter.children[0])
