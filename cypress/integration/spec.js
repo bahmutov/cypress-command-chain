@@ -61,7 +61,14 @@ it('shows the should assertion', () => {
   cy.wrap(10).should('be.equal', 10)
 })
 
+it.skip('fails', () => {
+  cy.wrap(20, { timeout: 0 }).should('be.equal', 21)
+})
+
 it.skip('fails after retries', () => {
+  // first chain passes
+  cy.wrap('first').wait(1000).should('be.equal', 'first')
+  // second chain fails
   cy.wrap(20).wait(1000).should('be.equal', 21)
 })
 

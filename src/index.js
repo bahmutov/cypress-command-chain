@@ -25,6 +25,14 @@ const stringify = (args) => {
     .join(', ')
 }
 
+const COLORS = {
+  assertions: {
+    pending: '#7eb0db',
+    passing: '#07b282',
+    failed: '#cc3943',
+  },
+}
+
 Cypress.on('command:enqueued', (command) => {
   // console.log('command enqueued', command)
   if (!el) {
@@ -38,11 +46,12 @@ Cypress.on('command:enqueued', (command) => {
   commandEl.dataset.finished = false
   commandEl.dataset.commandType = command.type
   if (command.type === 'assertion') {
-    commandEl.style.color = '#07b282'
+    commandEl.style.color = COLORS.assertions.pending
   }
   // console.log('chainer', command.chainerId)
+  const commandText = command.name + ' ' + stringify(command.args)
   const text = document.createTextNode(
-    command.name + ' ' + stringify(command.args),
+    command.type === 'assertion' ? ' - ' + commandText : commandText,
   )
   commandEl.appendChild(text)
 
@@ -94,7 +103,16 @@ Cypress.on('command:start', (command) => {
   }
 })
 
-function finishCommand(commandEl) {
+function finishCommand(commandEl, failed) {
+  if (failed) {
+    commandEl.style.color = COLORS.assertions.failed
+  }
+
+  if (commandEl.dataset.commandType === 'assertion') {
+    commandEl.style.color = failed
+      ? COLORS.assertions.failed
+      : COLORS.assertions.passing
+  }
   commandEl.style.opacity = 0.75
   commandEl.style.fontWeight = 'normal'
 }
@@ -116,10 +134,11 @@ function finishRunningCommandsBefore(commandEl) {
   }
 }
 
-function finishRunningCommand() {
+function finishRunningCommand(failed) {
+  debugger
   finishRunningCommandsBefore(runningCommandEl)
   if (runningCommandEl) {
-    finishCommand(runningCommandEl)
+    finishCommand(runningCommandEl, failed)
 
     // when finishing a command, finish all directly attached assertions
     let el = runningCommandEl
@@ -128,7 +147,7 @@ function finishRunningCommand() {
       el.nextElementSibling &&
       el.nextElementSibling.dataset.commandType === 'assertion'
     ) {
-      finishCommand(el.nextElementSibling)
+      finishCommand(el.nextElementSibling, failed)
       el = el.nextSibling
     }
 
@@ -142,9 +161,10 @@ Cypress.on('command:end', (command) => {
   finishRunningCommand()
 })
 
-Cypress.on('test:after:run', () => {
-  console.log('test:after:run')
-  finishRunningCommand()
+Cypress.on('test:after:run', (current) => {
+  // console.log('test:after:run', current)
+  const failed = current.state === 'failed'
+  finishRunningCommand(failed)
 })
 
 let el
