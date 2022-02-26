@@ -115,6 +115,7 @@ function finishCommand(commandEl, failed) {
   }
   commandEl.style.opacity = 0.75
   commandEl.style.fontWeight = 'normal'
+  commandEl.scrollIntoView(false)
 }
 
 function finishRunningCommandsBefore(commandEl) {
@@ -135,7 +136,6 @@ function finishRunningCommandsBefore(commandEl) {
 }
 
 function finishRunningCommand(failed) {
-  debugger
   finishRunningCommandsBefore(runningCommandEl)
   if (runningCommandEl) {
     finishCommand(runningCommandEl, failed)
@@ -151,6 +151,7 @@ function finishRunningCommand(failed) {
       el = el.nextSibling
     }
 
+    // make sure to scroll to the command when finishing it
     runningCommandEl = null
     nextScheduledCommandEl = null
   }
