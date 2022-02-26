@@ -1,5 +1,7 @@
 # cypress-command-chain ![cypress version](https://img.shields.io/badge/cypress-9.5.0-brightgreen)
 
+Watch the video [Cypress Command Chain Plugin Introduction](https://youtu.be/K5x2oXWsWqI).
+
 ## Install
 
 ```
