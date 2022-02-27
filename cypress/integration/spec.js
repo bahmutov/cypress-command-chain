@@ -98,3 +98,16 @@ it('lots of assertions at the end', () => {
     .and('be.a', 'number')
     .and('be.within', 199, 201)
 })
+
+it('uses an alias', () => {
+  cy.wrap('hello').as('greeting')
+  cy.get('@greeting').should('equal', 'hello')
+  cy.wrap([1, 2, 3]).as('numbers')
+  cy.get('@numbers').should('be.an', 'array').and('have.length', 3)
+})
+
+it('uses an element alias', () => {
+  cy.visit('/')
+  cy.get('#projects-count').as('projects')
+  cy.get('@projects').should('include.text', 'projects')
+})

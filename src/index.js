@@ -2,6 +2,10 @@
 
 // TODO: handle functions etc
 const stringify = (args) => {
+  if (!Array.isArray(args)) {
+    return ''
+  }
+
   return args
     .map((x) => {
       if (typeof x === 'function') {
