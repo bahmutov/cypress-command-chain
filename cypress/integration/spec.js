@@ -111,3 +111,14 @@ it('uses an element alias', () => {
   cy.get('#projects-count').as('projects')
   cy.get('@projects').should('include.text', 'projects')
 })
+
+it('supports first', () => {
+  let initialValue
+  cy.visit('/')
+  cy.get('#projects li').should('have.length.gt', 100).first()
+  cy.get('#projects li').as('projects')
+  cy.get('@projects')
+    .first()
+    .invoke('text')
+    .then((x) => (initialValue = x))
+})
