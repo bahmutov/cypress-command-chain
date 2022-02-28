@@ -19,6 +19,10 @@ In the spec or in the support file import this package
 import 'cypress-command-chain'
 ```
 
+This plugin adds a queue list to the Cypress Command Log, showing all commands (finished, current, and enqueued) for the current test.
+
+![Command queue](./images/queue.png)
+
 ## Small print
 
 Author: Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2022
