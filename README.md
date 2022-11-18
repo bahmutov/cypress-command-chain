@@ -1,4 +1,4 @@
-# cypress-command-chain ![cypress version](https://img.shields.io/badge/cypress-9.5.0-brightgreen)
+# cypress-command-chain ![cypress version](https://img.shields.io/badge/cypress-11.1.0-brightgreen)
 
 Watch the video [Cypress Command Chain Plugin Introduction](https://youtu.be/K5x2oXWsWqI) and read the blog posts [Visualize Cypress Command Queue](https://glebbahmutov.com/blog/visualize-cypress-command-queue/) and [Cypress Cannot Add Out-Of-Band Commands](https://glebbahmutov.com/blog/cypress-out-of-band/).
 
