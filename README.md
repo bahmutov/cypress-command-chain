@@ -3,6 +3,7 @@
 Watch the video [Cypress Command Chain Plugin Introduction](https://youtu.be/K5x2oXWsWqI) and read the blog posts [Visualize Cypress Command Queue](https://glebbahmutov.com/blog/visualize-cypress-command-queue/) and [Cypress Cannot Add Out-Of-Band Commands](https://glebbahmutov.com/blog/cypress-out-of-band/).
 
 - 🎓 See the course [Cypress Plugins](https://cypress.tips/courses/cypress-plugins)
+- 🎓 See the course [Cypress Network Testing Exercises](https://cypress.tips/courses/network-testing)
 
 ## Install
 
