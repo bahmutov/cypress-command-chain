@@ -10,7 +10,8 @@
   "scripts": {
     "test": "cypress run",
     "semantic-release": "semantic-release",
-    "badges": "npx -p dependency-version-badge update-badge cypress"
+    "badges": "npx -p dependency-version-badge update-badge cypress",
+    "open": "cypress open"
   },
   "keywords": [
     "cypress-plugin"
