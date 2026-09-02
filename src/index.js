@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+const pluginLabel = 'cypress-command-chain'
+
 // TODO: handle functions etc
 const stringify = (args) => {
   if (!Array.isArray(args)) {
@@ -103,7 +105,11 @@ Cypress.on('command:start', (command) => {
     nextScheduledCommandEl = commandEl.nextElementSibling
     commandEl.scrollIntoView(false)
   } else {
-    console.log('could not find command', command.attributes.name)
+    console.warn(
+      '%s: could not find command',
+      pluginLabel,
+      command.attributes.name,
+    )
   }
 })
 
@@ -137,6 +143,21 @@ function finishRunningCommandsBefore(commandEl) {
       finishCommand(el)
     }
   }
+}
+
+function findReporterContainer() {
+  // different versions of Cypress has different reporter structure
+  let reporter = window.top.document.querySelector('.reporter .container')
+
+  if (!reporter) {
+    // trying reporter iframe (Cypress 15.21.0)
+    const frame = window.top.document.querySelector('#reporter-frame')
+    if (frame) {
+      reporter = frame.contentDocument.querySelector('.reporter .container')
+    }
+  }
+
+  return reporter
 }
 
 function finishRunningCommand(failed) {
@@ -182,12 +203,19 @@ before(() => {
   if (el) {
     return
   }
-  el = window.top.document.querySelector('#command-queue')
-  if (el) {
+
+  const reporter = findReporterContainer()
+  if (!reporter) {
+    console.warn('%s: could not find reporter element', pluginLabel)
     return
   }
 
-  const reporter = window.top.document.querySelector('.reporter .container')
+  el = reporter.querySelector('#command-queue')
+  if (el) {
+    // our custom element already exists, do not create it again
+    return
+  }
+
   el = document.createElement('p')
   el.id = 'command-queue'
   el.style.fontSize = '1.2em'
@@ -196,8 +224,6 @@ before(() => {
   el.style.marginBottom = 0
   el.style.maxHeight = '250px'
   el.style.overflowY = 'scroll'
-  // const text = document.createTextNode('Hello there')
-  // el.appendChild(text)
 
   if (reporter.children.length > 0) {
     reporter.insertBefore(el, reporter.children[0])
@@ -208,6 +234,7 @@ before(() => {
 
 beforeEach(() => {
   if (el) {
+    // clear our custom element before each test
     while (el.firstChild) el.removeChild(el.firstChild)
   }
 })
