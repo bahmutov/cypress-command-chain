@@ -3,18 +3,28 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-24.04
+    permissions:
+      # allow the release step to comment on
+      # issues, pull requests, and write to the repo
+      contents: write
+      issues: write
+      pull-requests: write
+      # Required for OIDC to let NPM registry know
+      # that this workflow is trusted
+      id-token: write
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@v5
+        # https://github.com/actions/checkout
+        uses: actions/checkout@v7
 
       - name: Run tests 🧪
         # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
 
       - name: Semantic Release 🚀
-        uses: cycjimmy/semantic-release-action@v4
+        # https://github.com/cycjimmy/semantic-release-action
+        uses: cycjimmy/semantic-release-action@v6
         with:
           branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
